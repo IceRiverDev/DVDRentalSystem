@@ -1,0 +1,18 @@
+# 使用宿主机已有的 PostgreSQL（不启动内置 db 容器）
+#
+# 用法：
+#   docker compose -f docker-compose.yml -f docker-compose.host-db.yml up -d
+#
+# Docker Desktop (macOS/Windows) 用 host.docker.internal 访问宿主机
+# Linux 用 172.17.0.1 或开启 --network=host
+
+services:
+  db:
+    # 禁用内置 db 服务
+    profiles: ["disabled"]
+
+  backend:
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-host.docker.internal}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    depends_on: {}   # 移除对 db 的依赖
