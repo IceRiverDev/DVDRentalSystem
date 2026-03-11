@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import logging.config
 from contextlib import asynccontextmanager
 
@@ -8,9 +7,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
+from app.api.v1.router import router as api_v1_router
 from app.core.config import get_settings
 from app.core.database import engine
-from app.api.v1.router import router as api_v1_router
 from app.exceptions.handlers import register_exception_handlers
 
 settings = get_settings()

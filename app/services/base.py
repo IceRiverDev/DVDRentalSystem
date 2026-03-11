@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from typing import Any, Generic, TypeVar
-from math import ceil
 
 from fastapi import HTTPException, status
-from sqlalchemy import select, func, update, delete
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase
 
 from app.core.database import Base
 

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime, date
-from decimal import Decimal
 from typing import Optional
 
-from pydantic import Field, EmailStr
+from pydantic import Field
+
 from app.schemas.base import AppBaseModel
 from app.schemas.geography import AddressResponse
 

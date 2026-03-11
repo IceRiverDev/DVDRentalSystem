@@ -1,6 +1,6 @@
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-import httpx
 
 from app.core.config import get_settings
 from app.core.security import create_access_token, get_current_user

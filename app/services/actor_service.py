@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models import Actor, FilmActor, Film
+from app.models import Actor, FilmActor
 from app.services.base import BaseService
 
 
@@ -24,7 +24,7 @@ class ActorService(BaseService[Actor]):
         return actor
 
     async def search_by_name(self, name: str, page: int = 1, size: int = 20, sort_by: str | None = None, order: str = "asc"):
-        from sqlalchemy import or_, func
+        from sqlalchemy import or_
         pattern = f"%{name}%"
         filters = [
             or_(

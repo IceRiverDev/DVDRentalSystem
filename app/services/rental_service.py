@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from sqlalchemy import select, func
 
-from app.models import Rental, Inventory, Payment
+from app.models import Rental, Payment
 from app.services.base import BaseService
 
 
@@ -57,8 +57,6 @@ class RentalService(BaseService[Rental]):
         return rental
 
     async def get_overdue_rentals(self, page: int = 1, size: int = 20):
-        from app.models import Film
-        from sqlalchemy.orm import selectinload
         # Overdue = not returned and rental_date older than film's rental_duration days
         # Simplified: return_date is None
         q = (

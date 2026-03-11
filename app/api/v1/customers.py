@@ -6,7 +6,6 @@ from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import PaginationParams, pagination_params, build_paged_response
 from app.core.database import DBSession
-from app.models import Customer
 from app.schemas import (
     CustomerCreate, CustomerUpdate, CustomerResponse, CustomerDetailResponse,
     PagedResponse, MessageResponse, RentalResponse,

@@ -1,9 +1,4 @@
 from app.schemas.base import AppBaseModel, PagedResponse, MessageResponse
-from app.schemas.geography import (
-    CountryCreate, CountryUpdate, CountryResponse,
-    CityCreate, CityUpdate, CityResponse, CityDetailResponse,
-    AddressCreate, AddressUpdate, AddressResponse,
-)
 from app.schemas.catalog import (
     LanguageCreate, LanguageUpdate, LanguageResponse,
     CategoryCreate, CategoryUpdate, CategoryResponse,
@@ -11,6 +6,11 @@ from app.schemas.catalog import (
 )
 from app.schemas.film import (
     FilmCreate, FilmUpdate, FilmResponse, FilmDetailResponse,
+)
+from app.schemas.geography import (
+    CountryCreate, CountryUpdate, CountryResponse,
+    CityCreate, CityUpdate, CityResponse, CityDetailResponse,
+    AddressCreate, AddressUpdate, AddressResponse,
 )
 from app.schemas.people import (
     CustomerCreate, CustomerUpdate, CustomerResponse, CustomerDetailResponse,

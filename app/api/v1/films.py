@@ -6,11 +6,9 @@ from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import PaginationParams, pagination_params, build_paged_response
 from app.core.database import DBSession
-from app.models import Film
 from app.schemas import (
     FilmCreate, FilmUpdate, FilmResponse, FilmDetailResponse,
-    PagedResponse, MessageResponse, ActorResponse, CategoryResponse,
-)
+    PagedResponse, MessageResponse, )
 from app.services import FilmService
 
 router = APIRouter(prefix="/films", tags=["Films"])

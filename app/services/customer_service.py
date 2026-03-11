@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models import Customer, Address
+from app.models import Customer
 from app.services.base import BaseService
 
 
@@ -33,7 +33,7 @@ class CustomerService(BaseService[Customer]):
         sort_by: str | None = None,
         order: str = "asc",
     ):
-        from sqlalchemy import func, or_
+        from sqlalchemy import or_
         filters = []
         if name:
             pattern = f"%{name}%"

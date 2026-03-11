@@ -1,21 +1,16 @@
 from __future__ import annotations
 
-from typing import Annotated
+from fastapi import APIRouter, status
 
-from fastapi import APIRouter, Depends, status
-
-from app.api.deps import PaginationParams, pagination_params, build_paged_response
 from app.core.database import DBSession
 from app.models import Category, Language, Country, City
 from app.schemas import (
     CategoryCreate, CategoryUpdate, CategoryResponse,
     LanguageCreate, LanguageUpdate, LanguageResponse,
-    CountryCreate, CountryUpdate, CountryResponse,
-    CityCreate, CityUpdate, CityResponse, CityDetailResponse,
-    AddressCreate, AddressUpdate, AddressResponse,
-    StaffCreate, StaffUpdate, StaffResponse,
-    StoreCreate, StoreUpdate, StoreResponse, StoreDetailResponse,
-    PagedResponse, MessageResponse,
+    CountryResponse,
+    CityResponse, StaffUpdate, StaffResponse,
+    StoreResponse, StoreDetailResponse,
+    MessageResponse,
 )
 from app.services.base import BaseService
 

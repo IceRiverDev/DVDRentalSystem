@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from sqlalchemy import select, or_
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models import Film, FilmActor, FilmCategory, Actor, Category, Language
+from app.models import Film, FilmActor, FilmCategory
 from app.services.base import BaseService
 
 

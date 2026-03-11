@@ -5,6 +5,7 @@ from decimal import Decimal
 from typing import Optional
 
 from pydantic import Field
+
 from app.models.models import MpaaRating
 from app.schemas.base import AppBaseModel
 from app.schemas.catalog import ActorResponse, CategoryResponse, LanguageResponse

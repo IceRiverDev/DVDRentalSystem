@@ -5,6 +5,7 @@ from decimal import Decimal
 from typing import Optional
 
 from pydantic import Field
+
 from app.schemas.base import AppBaseModel
 
 
