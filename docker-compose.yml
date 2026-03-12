@@ -52,27 +52,36 @@ services:
     restart: unless-stopped
     command: start-dev --import-realm
     environment:
-      KEYCLOAK_ADMIN:          ${KEYCLOAK_ADMIN:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
-      KC_HTTP_PORT:            8080
+      KEYCLOAK_ADMIN:           ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD:  ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HTTP_PORT:             8080
       # 使 token 中的 issuer 与浏览器访问的地址一致（localhost:8090）
-      KC_HOSTNAME_URL:         http://localhost:${KEYCLOAK_PORT:-8090}
-      KC_HOSTNAME_STRICT:      "false"
+      KC_HOSTNAME_URL:          http://localhost:${KEYCLOAK_PORT:-8090}
+      KC_HOSTNAME_STRICT:       "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
-      KC_HTTP_ENABLED:         "true"
+      KC_HTTP_ENABLED:          "true"
+      # 使用 PostgreSQL 替代默认 H2（稳定、持久、无文件锁问题）
+      KC_DB:                    postgres
+      KC_DB_URL:                jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME:           ${POSTGRES_USER:-postgres}
+      KC_DB_PASSWORD:           ${POSTGRES_PASSWORD:-postgres}
+      KC_HEALTH_ENABLED:        "true"
     ports:
       - "${KEYCLOAK_PORT:-8090}:8080"
     volumes:
-      # H2 数据库持久化（保留 realm 配置和用户数据，重启不丢失）
-      - keycloak_data:/opt/keycloak/data/h2
-      # Realm 导入文件（首次启动时使用）
+      # Realm 导入文件（首次启动时自动导入；realm 已存在时跳过）
       - ./docker/keycloak:/opt/keycloak/data/import:ro
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ready || exit 1"]
+      # Keycloak 26+: health endpoint is on management port 9000 (not 8080)
+      # distroless image has no curl/wget; use bash TCP socket
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q 'UP' <&3"]
       interval: 15s
       timeout: 5s
       retries: 10
-      start_period: 60s
+      start_period: 90s
 
   # ── FastAPI Backend ─────────────────────────────────────────────────────────
   backend:
@@ -127,5 +136,3 @@ services:
 volumes:
   pgdata:
     name: dvdrental_pgdata
-  keycloak_data:
-    name: dvdrental_keycloak_data

@@ -40,3 +40,6 @@ htmlcov/
 
 # Docker init SQL (large file, regenerate with pg_dump)
 docker/initdb/*.sql
+# Exception: small helper scripts should be tracked
+!docker/initdb/00_create_keycloak_db.sql
+docker/keycloak/*
