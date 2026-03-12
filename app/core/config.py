@@ -31,14 +31,23 @@ class Settings(BaseSettings):
     DEFAULT_PAGE_SIZE: int = 20
     MAX_PAGE_SIZE: int = 100
 
-    # GitHub OAuth
+    # GitHub OAuth (legacy — kept for reference)
     GITHUB_CLIENT_ID: str = ""
     GITHUB_CLIENT_SECRET: str = ""
 
-    # JWT
-    JWT_SECRET_KEY: str = ""
-    JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRE_MINUTES: int = 480
+    # Keycloak IDP
+    # KEYCLOAK_ISSUER    : issuer value inside tokens (what clients see)
+    # KEYCLOAK_JWKS_URL  : where the backend fetches public keys from
+    #                      (can differ in Docker — use host.docker.internal)
+    # KEYCLOAK_CLIENT_ID : OAuth2 client id (public client, no secret needed)
+    KEYCLOAK_ISSUER: str = "http://localhost:8090/realms/dvd-rental"
+    KEYCLOAK_JWKS_URL: str = "http://localhost:8090/realms/dvd-rental/protocol/openid-connect/certs"
+    KEYCLOAK_CLIENT_ID: str = "dvd-rental-api"
+
+    @property
+    def keycloak_token_url(self) -> str:
+        """Derives token endpoint from JWKS URL (uses host.docker.internal in Docker)."""
+        return self.KEYCLOAK_JWKS_URL.replace("/certs", "/token")
 
     @property
     def async_database_url(self) -> str:

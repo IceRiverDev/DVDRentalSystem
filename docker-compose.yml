@@ -57,11 +57,14 @@ services:
       ALLOWED_ORIGINS:   >-
         ["http://localhost","http://localhost:80","http://127.0.0.1",
          "http://localhost:${FRONTEND_PORT:-80}"]
-      GITHUB_CLIENT_ID:     ${GITHUB_CLIENT_ID}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-      JWT_SECRET_KEY:       ${JWT_SECRET_KEY}
-      JWT_ALGORITHM:        ${JWT_ALGORITHM:-HS256}
-      JWT_EXPIRE_MINUTES:   ${JWT_EXPIRE_MINUTES:-480}
+      GITHUB_CLIENT_ID:     ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      # Keycloak IDP
+      # ISSUER stays as localhost (matches what's inside the tokens)
+      # JWKS_URL uses host.docker.internal so the container can reach the host
+      KEYCLOAK_ISSUER:   http://localhost:8090/realms/dvd-rental
+      KEYCLOAK_JWKS_URL: http://host.docker.internal:8090/realms/dvd-rental/protocol/openid-connect/certs
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-dvd-rental-api}
     depends_on:
       db:
         condition: service_healthy

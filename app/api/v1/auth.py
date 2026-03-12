@@ -1,94 +1,119 @@
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
 
 from app.core.config import get_settings
-from app.core.security import create_access_token, get_current_user
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-
-class CallbackRequest(BaseModel):
-    code: str
+_COOKIE = "dvd_refresh_token"
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: dict
-
-
-@router.get("/github/url")
-async def github_login_url():
-    settings = get_settings()
-    url = (
-        f"https://github.com/login/oauth/authorize"
-        f"?client_id={settings.GITHUB_CLIENT_ID}"
-        f"&redirect_uri=http://localhost:8080/auth/callback"
-        f"&scope=read:user+user:email"
-    )
-    return {"url": url}
-
-
-@router.post("/github/callback", response_model=TokenResponse)
-async def github_callback(body: CallbackRequest):
+async def _keycloak_token(data: dict) -> dict:
+    """POST to Keycloak token endpoint; raise 401 on failure."""
     settings = get_settings()
     async with httpx.AsyncClient() as client:
-        # Exchange code for access token
-        token_resp = await client.post(
-            "https://github.com/login/oauth/access_token",
-            json={
-                "client_id": settings.GITHUB_CLIENT_ID,
-                "client_secret": settings.GITHUB_CLIENT_SECRET,
-                "code": body.code,
-            },
-            headers={"Accept": "application/json"},
+        resp = await client.post(
+            settings.keycloak_token_url,
+            data=data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
             timeout=10,
         )
-        token_data = token_resp.json()
-        if "access_token" not in token_data:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="GitHub OAuth failed")
-
-        # Get user info
-        user_resp = await client.get(
-            "https://api.github.com/user",
-            headers={
-                "Authorization": f"Bearer {token_data['access_token']}",
-                "Accept": "application/vnd.github+json",
-            },
-            timeout=10,
-        )
-        if user_resp.status_code != 200:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Failed to get GitHub user info")
-        github_user = user_resp.json()
-
-        # Fetch primary email if not public
-        email = github_user.get("email")
-        if not email:
-            email_resp = await client.get(
-                "https://api.github.com/user/emails",
-                headers={
-                    "Authorization": f"Bearer {token_data['access_token']}",
-                    "Accept": "application/vnd.github+json",
-                },
-                timeout=10,
-            )
-            if email_resp.status_code == 200:
-                emails = email_resp.json()
-                primary = next((e for e in emails if e.get("primary")), None)
-                email = primary["email"] if primary else None
-
-    user_info = {
-        "github_id": github_user["id"],
-        "login": github_user["login"],
-        "name": github_user.get("name") or github_user["login"],
-        "email": email,
-        "avatar_url": github_user.get("avatar_url", ""),
-    }
-    token = create_access_token(user_info)
-    return TokenResponse(access_token=token, user=user_info)
+    if resp.status_code != 200:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=resp.json().get("error_description", "Token request failed"))
+    return resp.json()
 
 
-@router.get("/me")
+def _set_refresh_cookie(response: Response, refresh_token: str, max_age: int) -> None:
+    response.set_cookie(
+        key=_COOKIE,
+        value=refresh_token,
+        httponly=True,
+        secure=False,       # set True in production (HTTPS only)
+        samesite="lax",
+        max_age=max_age,
+        path="/api/v1/auth",
+    )
+
+
+@router.post("/callback", summary="Exchange PKCE code for tokens", include_in_schema=False)
+async def oidc_callback(request: Request, response: Response):
+    """
+    Receive the PKCE authorization code from the frontend, exchange it with
+    Keycloak, store the refresh_token in an HttpOnly cookie, and return the
+    access_token to the frontend.
+    """
+    settings = get_settings()
+    body = await request.json()
+
+    token_data = await _keycloak_token({
+        "grant_type":    "authorization_code",
+        "client_id":     settings.KEYCLOAK_CLIENT_ID,
+        "code":          body["code"],
+        "code_verifier": body["code_verifier"],
+        "redirect_uri":  body["redirect_uri"],
+    })
+
+    _set_refresh_cookie(response, token_data["refresh_token"],
+                        token_data.get("refresh_expires_in", 604800))
+    return {"access_token": token_data["access_token"]}
+
+
+@router.post("/refresh", summary="Silently refresh access token", include_in_schema=False)
+async def refresh_access_token(
+    response: Response,
+    dvd_refresh_token: str = Cookie(default=None),
+):
+    """
+    Use the HttpOnly refresh_token cookie to obtain a new access_token.
+    Also rotates the refresh_token cookie.
+    """
+    if not dvd_refresh_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="No refresh token cookie")
+
+    settings = get_settings()
+    token_data = await _keycloak_token({
+        "grant_type":    "refresh_token",
+        "client_id":     settings.KEYCLOAK_CLIENT_ID,
+        "refresh_token": dvd_refresh_token,
+    })
+
+    _set_refresh_cookie(response, token_data["refresh_token"],
+                        token_data.get("refresh_expires_in", 604800))
+    return {"access_token": token_data["access_token"]}
+
+
+@router.post("/logout", summary="Logout and clear refresh token cookie", include_in_schema=False)
+async def logout(response: Response):
+    """Clear the HttpOnly refresh_token cookie."""
+    response.delete_cookie(key=_COOKIE, path="/api/v1/auth")
+    return {"message": "Logged out"}
+
+
+@router.get("/me", summary="Get current authenticated user")
 async def get_me(current_user: dict = Depends(get_current_user)):
-    return current_user
+    return {
+        "sub":      current_user.get("sub"),
+        "username": current_user.get("preferred_username"),
+        "name":     current_user.get("name"),
+        "email":    current_user.get("email"),
+        "roles":    current_user.get("realm_access", {}).get("roles", []),
+    }
+
+
+@router.get("/token-info", summary="How to get a token", include_in_schema=True)
+async def token_info():
+    settings = get_settings()
+    return {
+        "token_url": f"{settings.KEYCLOAK_ISSUER}/protocol/openid-connect/token",
+        "grant_type": "password",
+        "example": {
+            "client_id":  settings.KEYCLOAK_CLIENT_ID,
+            "username":   "<your username>",
+            "password":   "<your password>",
+            "grant_type": "password",
+        },
+    }
+

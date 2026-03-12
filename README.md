@@ -152,7 +152,14 @@ DEBUG=false                        # true 时开启 SQL 日志
 
 # CORS 白名单（JSON 数组格式）
 ALLOWED_ORIGINS=["http://localhost:3000","http://localhost:8080"]
+
+# Keycloak IDP
+KEYCLOAK_ISSUER=http://localhost:8090/realms/dvd-rental
+KEYCLOAK_JWKS_URL=http://localhost:8090/realms/dvd-rental/protocol/openid-connect/certs
+KEYCLOAK_CLIENT_ID=dvd-rental-api
 ```
+
+> Docker 部署时，`KEYCLOAK_JWKS_URL` 和 `KEYCLOAK_TOKEN_URL` 需使用 `host.docker.internal` 地址以便容器访问宿主机上的 Keycloak（已在 `docker-compose.yml` 中预设）。
 
 ---
 
@@ -328,7 +335,55 @@ async def get_film(film_id: int, db: DBSession):
 
 ---
 
-## 运行测试
+## 认证（Keycloak OIDC + PKCE）
+
+本系统使用 **Keycloak** 作为 Identity Provider（IDP），采用 **PKCE 授权码流程**（OAuth 2.1 推荐标准）进行身份认证。
+
+### 认证架构
+
+```
+前端（PKCE）→ Keycloak 登录页 → 返回 code
+前端 POST /auth/callback（code + code_verifier）→ 后端
+后端 ↔ Keycloak 换取 tokens
+后端 → 将 refresh_token 存入 HttpOnly Cookie
+后端 → 返回 access_token 给前端
+```
+
+### 端点说明
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/v1/auth/callback` | 接收 PKCE code，换取 token，设置 HttpOnly Cookie |
+| POST | `/api/v1/auth/refresh` | 用 Cookie 中的 refresh_token 静默续期 |
+| POST | `/api/v1/auth/logout` | 清除 refresh_token Cookie |
+| GET | `/api/v1/auth/me` | 返回当前登录用户信息 |
+
+所有数据接口（`/actors`、`/films` 等）均要求在请求头携带有效的 Bearer Token：
+
+```
+Authorization: Bearer <access_token>
+```
+
+### 本地搭建 Keycloak
+
+```bash
+docker run -d \
+  --name keycloak \
+  -p 8090:8080 \
+  -e KEYCLOAK_ADMIN=admin \
+  -e KEYCLOAK_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:latest \
+  start-dev
+```
+
+访问 http://localhost:8090，创建 Realm `dvd-rental`，Client ID `dvd-rental-api`（Public Client），并设置以下 redirect URIs：
+
+```
+http://localhost:8080/auth/callback
+http://localhost:5173/auth/callback
+```
+
+Swagger UI 测试：访问 http://localhost:8000/docs → `GET /auth/token-info` 查看获取 token 的命令。
 
 ```bash
 # 运行全部测试
