@@ -68,7 +68,7 @@ services:
       KC_HEALTH_ENABLED:        "true"
     ports:
       - "${KEYCLOAK_PORT:-8090}:8080"
-      - "9000:9000"   # 管理端口（health check）
+      - "${KEYCLOAK_ADMIN_PORT:-9000}:9000"   # 管理端口（health check）
     volumes:
       # Realm 导入文件（首次启动时自动导入；realm 已存在时跳过）
       - ./docker/keycloak:/opt/keycloak/data/import:ro
@@ -129,7 +129,7 @@ services:
     container_name: dvdrental_frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_PORT:-8080}:80"
     depends_on:
       backend:
         condition: service_healthy
