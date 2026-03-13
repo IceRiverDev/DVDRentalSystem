@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Generic, TypeVar
 
 from fastapi import HTTPException, status
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import Base

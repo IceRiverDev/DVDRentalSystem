@@ -20,6 +20,7 @@ class CustomerService(BaseService[Customer]):
         customer = result.scalar_one_or_none()
         if customer is None:
             from fastapi import HTTPException, status
+
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
         return customer
 
@@ -34,6 +35,7 @@ class CustomerService(BaseService[Customer]):
         order: str = "asc",
     ):
         from sqlalchemy import or_
+
         filters = []
         if name:
             pattern = f"%{name}%"
@@ -48,21 +50,29 @@ class CustomerService(BaseService[Customer]):
         if active is not None:
             filters.append(Customer.activebool == active)
 
-        return await self.list(page=page, size=size, filters=filters or None, sort_by=sort_by, order=order)
+        return await self.list(
+            page=page, size=size, filters=filters or None, sort_by=sort_by, order=order
+        )
 
     async def get_rental_history(self, customer_id: int, page: int = 1, size: int = 20):
-        from app.models import Rental
         from sqlalchemy import func
+
+        from app.models import Rental
+
         count_q = select(func.count()).select_from(Rental).where(Rental.customer_id == customer_id)
         total = (await self.db.execute(count_q)).scalar_one()
         offset = (page - 1) * size
         rows = (
-            await self.db.execute(
-                select(Rental)
-                .where(Rental.customer_id == customer_id)
-                .order_by(Rental.rental_date.desc())
-                .offset(offset)
-                .limit(size)
+            (
+                await self.db.execute(
+                    select(Rental)
+                    .where(Rental.customer_id == customer_id)
+                    .order_by(Rental.rental_date.desc())
+                    .offset(offset)
+                    .limit(size)
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         return list(rows), total

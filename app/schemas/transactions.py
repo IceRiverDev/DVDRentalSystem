@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 from pydantic import Field
 
@@ -20,8 +19,8 @@ class InventoryCreate(InventoryBase):
 
 
 class InventoryUpdate(AppBaseModel):
-    film_id: Optional[int] = None
-    store_id: Optional[int] = None
+    film_id: int | None = None
+    store_id: int | None = None
 
 
 class InventoryResponse(InventoryBase):
@@ -37,24 +36,24 @@ class RentalBase(AppBaseModel):
 
 
 class RentalCreate(RentalBase):
-    rental_date: Optional[datetime] = None
+    rental_date: datetime | None = None
 
 
 class RentalReturn(AppBaseModel):
-    return_date: Optional[datetime] = None
+    return_date: datetime | None = None
 
 
 class RentalUpdate(AppBaseModel):
-    inventory_id: Optional[int] = None
-    customer_id: Optional[int] = None
-    staff_id: Optional[int] = None
-    return_date: Optional[datetime] = None
+    inventory_id: int | None = None
+    customer_id: int | None = None
+    staff_id: int | None = None
+    return_date: datetime | None = None
 
 
 class RentalResponse(RentalBase):
     rental_id: int
     rental_date: datetime
-    return_date: Optional[datetime] = None
+    return_date: datetime | None = None
     last_update: datetime
 
 
@@ -72,8 +71,8 @@ class PaymentCreate(PaymentBase):
 
 
 class PaymentUpdate(AppBaseModel):
-    amount: Optional[Decimal] = Field(None, ge=0)
-    payment_date: Optional[datetime] = None
+    amount: Decimal | None = Field(None, ge=0)
+    payment_date: datetime | None = None
 
 
 class PaymentResponse(PaymentBase):

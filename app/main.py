@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
+from app import __version__
 from app.api.v1.router import router as api_v1_router
 from app.core.config import get_settings
 from app.core.database import engine
@@ -45,6 +46,7 @@ async def lifespan(app: FastAPI):
     # Verify DB connectivity on startup
     async with engine.connect() as conn:
         from sqlalchemy import text
+
         await conn.execute(text("SELECT 1"))
     logger.info("Database connection verified ✓")
     yield
@@ -55,7 +57,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.PROJECT_NAME,
-        version="1.0.0",
+        version=__version__,
         description=(
             "Production-ready REST API for the DVD Rental System. "
             "Built with FastAPI + SQLAlchemy 2.x async."

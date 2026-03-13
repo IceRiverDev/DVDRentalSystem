@@ -4,17 +4,30 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import PaginationParams, pagination_params, build_paged_response
+from app.api.deps import PaginationParams, build_paged_response, pagination_params
 from app.core.database import DBSession
 from app.schemas import (
-    FilmCreate, FilmUpdate, FilmResponse, FilmDetailResponse,
-    PagedResponse, MessageResponse, )
+    FilmCreate,
+    FilmDetailResponse,
+    FilmResponse,
+    FilmUpdate,
+    MessageResponse,
+    PagedResponse,
+)
 from app.services import FilmService
 
 router = APIRouter(prefix="/films", tags=["Films"])
 Pagination = Annotated[PaginationParams, Depends(pagination_params)]
 
-ALLOWED_SORT_FIELDS = {"film_id", "title", "release_year", "rental_rate", "length", "rental_duration", "rating"}
+ALLOWED_SORT_FIELDS = {
+    "film_id",
+    "title",
+    "release_year",
+    "rental_rate",
+    "length",
+    "rental_duration",
+    "rating",
+}
 
 
 @router.get("", response_model=PagedResponse[FilmResponse])
@@ -32,9 +45,14 @@ async def list_films(
         sort_by = None
     svc = FilmService(db)
     items, total = await svc.search(
-        title=title, rating=rating, language_id=language_id,
-        category_id=category_id, page=pagination.page, size=pagination.size,
-        sort_by=sort_by, order=order,
+        title=title,
+        rating=rating,
+        language_id=language_id,
+        category_id=category_id,
+        page=pagination.page,
+        size=pagination.size,
+        sort_by=sort_by,
+        order=order,
     )
     return build_paged_response(items, total, pagination.page, pagination.size)
 

@@ -1,3 +1,6 @@
+# Runtime dependencies for production / Docker builds.
+# Source of truth is pyproject.toml [project.dependencies].
+# For development, install all deps with: pip install -e ".[dev]"
 fastapi[standard]>=0.115.0
 sqlalchemy[asyncio]>=2.0.36
 asyncpg>=0.30.0
@@ -6,8 +9,4 @@ pydantic-settings>=2.7.0
 alembic>=1.14.0
 uvicorn[standard]>=0.34.0
 python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
 python-multipart>=0.0.20
-httpx>=0.28.0
-pytest>=8.3.0
-pytest-asyncio>=0.25.0

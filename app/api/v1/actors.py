@@ -4,11 +4,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import PaginationParams, pagination_params, build_paged_response
+from app.api.deps import PaginationParams, build_paged_response, pagination_params
 from app.core.database import DBSession
 from app.models import Actor
 from app.schemas import (
-    ActorCreate, ActorUpdate, ActorResponse, PagedResponse, MessageResponse,
+    ActorCreate,
+    ActorResponse,
+    ActorUpdate,
+    MessageResponse,
+    PagedResponse,
 )
 from app.services import ActorService
 
@@ -30,9 +34,17 @@ async def list_actors(
         sort_by = None
     svc = ActorService(db)
     if name:
-        items, total = await svc.search_by_name(name, page=pagination.page, size=pagination.size, sort_by=sort_by, order=order)
+        items, total = await svc.search_by_name(
+            name, page=pagination.page, size=pagination.size, sort_by=sort_by, order=order
+        )
     else:
-        items, total = await svc.list(page=pagination.page, size=pagination.size, sort_by=sort_by, order=order, order_by=Actor.last_name if not sort_by else None)
+        items, total = await svc.list(
+            page=pagination.page,
+            size=pagination.size,
+            sort_by=sort_by,
+            order=order,
+            order_by=Actor.last_name if not sort_by else None,
+        )
     return build_paged_response(items, total, pagination.page, pagination.size)
 
 

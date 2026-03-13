@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import Field
 
@@ -18,7 +17,7 @@ class CountryCreate(CountryBase):
 
 
 class CountryUpdate(AppBaseModel):
-    country: Optional[str] = Field(None, max_length=50)
+    country: str | None = Field(None, max_length=50)
 
 
 class CountryResponse(CountryBase):
@@ -37,8 +36,8 @@ class CityCreate(CityBase):
 
 
 class CityUpdate(AppBaseModel):
-    city: Optional[str] = Field(None, max_length=50)
-    country_id: Optional[int] = None
+    city: str | None = Field(None, max_length=50)
+    country_id: int | None = None
 
 
 class CityResponse(CityBase):
@@ -47,16 +46,16 @@ class CityResponse(CityBase):
 
 
 class CityDetailResponse(CityResponse):
-    country_rel: Optional[CountryResponse] = None
+    country_rel: CountryResponse | None = None
 
 
 # ──────────────────────── Address ────────────────────────
 class AddressBase(AppBaseModel):
     address: str = Field(max_length=50)
-    address2: Optional[str] = Field(None, max_length=50)
+    address2: str | None = Field(None, max_length=50)
     district: str = Field(max_length=20)
     city_id: int
-    postal_code: Optional[str] = Field(None, max_length=10)
+    postal_code: str | None = Field(None, max_length=10)
     phone: str = Field(max_length=20)
 
 
@@ -65,12 +64,12 @@ class AddressCreate(AddressBase):
 
 
 class AddressUpdate(AppBaseModel):
-    address: Optional[str] = Field(None, max_length=50)
-    address2: Optional[str] = Field(None, max_length=50)
-    district: Optional[str] = Field(None, max_length=20)
-    city_id: Optional[int] = None
-    postal_code: Optional[str] = Field(None, max_length=10)
-    phone: Optional[str] = Field(None, max_length=20)
+    address: str | None = Field(None, max_length=50)
+    address2: str | None = Field(None, max_length=50)
+    district: str | None = Field(None, max_length=20)
+    city_id: int | None = None
+    postal_code: str | None = Field(None, max_length=10)
+    phone: str | None = Field(None, max_length=20)
 
 
 class AddressResponse(AddressBase):

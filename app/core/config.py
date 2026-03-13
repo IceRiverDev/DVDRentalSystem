@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     def parse_origins(cls, v: str | list[str]) -> list[str]:
         if isinstance(v, str):
             import json
+
             return json.loads(v)
         return v
 

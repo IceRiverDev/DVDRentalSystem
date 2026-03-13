@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 
-from app.models import Rental, Payment
+from app.models import Payment, Rental
 from app.services.base import BaseService
 
 
@@ -37,7 +37,7 @@ class RentalService(BaseService[Rental]):
             inventory_id=inventory_id,
             customer_id=customer_id,
             staff_id=staff_id,
-            rental_date=datetime.now(timezone.utc).replace(tzinfo=None),
+            rental_date=datetime.now(UTC).replace(tzinfo=None),
         )
         self.db.add(rental)
         await self.db.flush()
@@ -51,7 +51,7 @@ class RentalService(BaseService[Rental]):
                 status_code=status.HTTP_409_CONFLICT,
                 detail="This rental has already been returned",
             )
-        rental.return_date = return_date or datetime.now(timezone.utc).replace(tzinfo=None)
+        rental.return_date = return_date or datetime.now(UTC).replace(tzinfo=None)
         await self.db.flush()
         await self.db.refresh(rental)
         return rental
@@ -59,11 +59,7 @@ class RentalService(BaseService[Rental]):
     async def get_overdue_rentals(self, page: int = 1, size: int = 20):
         # Overdue = not returned and rental_date older than film's rental_duration days
         # Simplified: return_date is None
-        q = (
-            select(Rental)
-            .where(Rental.return_date.is_(None))
-            .order_by(Rental.rental_date.asc())
-        )
+        q = select(Rental).where(Rental.return_date.is_(None)).order_by(Rental.rental_date.asc())
         count_q = select(func.count()).select_from(Rental).where(Rental.return_date.is_(None))
         total = (await self.db.execute(count_q)).scalar_one()
         offset = (page - 1) * size
@@ -74,11 +70,22 @@ class RentalService(BaseService[Rental]):
 class PaymentService(BaseService[Payment]):
     model = Payment
 
-    async def get_customer_payments(self, customer_id: int, page: int = 1, size: int = 20, sort_by: str | None = None, order: str = "asc"):
+    async def get_customer_payments(
+        self,
+        customer_id: int,
+        page: int = 1,
+        size: int = 20,
+        sort_by: str | None = None,
+        order: str = "asc",
+    ):
         filters = [Payment.customer_id == customer_id]
         if sort_by:
-            return await self.list(page=page, size=size, filters=filters, sort_by=sort_by, order=order)
-        return await self.list(page=page, size=size, filters=filters, order_by=Payment.payment_date.desc())
+            return await self.list(
+                page=page, size=size, filters=filters, sort_by=sort_by, order=order
+            )
+        return await self.list(
+            page=page, size=size, filters=filters, order_by=Payment.payment_date.desc()
+        )
 
     async def get_revenue_summary(self) -> dict:
         result = await self.db.execute(

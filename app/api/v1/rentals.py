@@ -4,11 +4,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import PaginationParams, pagination_params, build_paged_response
+from app.api.deps import PaginationParams, build_paged_response, pagination_params
 from app.core.database import DBSession
 from app.schemas import (
-    RentalCreate, RentalReturn, RentalUpdate, RentalResponse,
-    PagedResponse, MessageResponse,
+    MessageResponse,
+    PagedResponse,
+    RentalCreate,
+    RentalResponse,
+    RentalReturn,
+    RentalUpdate,
 )
 from app.services import RentalService
 
@@ -29,6 +33,7 @@ async def list_rentals(
         sort_by = None
     svc = RentalService(db)
     from app.models import Rental
+
     if sort_by:
         items, total = await svc.list(
             page=pagination.page, size=pagination.size, sort_by=sort_by, order=order

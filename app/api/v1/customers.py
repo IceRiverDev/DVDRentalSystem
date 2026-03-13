@@ -4,11 +4,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import PaginationParams, pagination_params, build_paged_response
+from app.api.deps import PaginationParams, build_paged_response, pagination_params
 from app.core.database import DBSession
 from app.schemas import (
-    CustomerCreate, CustomerUpdate, CustomerResponse, CustomerDetailResponse,
-    PagedResponse, MessageResponse, RentalResponse,
+    CustomerCreate,
+    CustomerDetailResponse,
+    CustomerResponse,
+    CustomerUpdate,
+    MessageResponse,
+    PagedResponse,
+    RentalResponse,
 )
 from app.services import CustomerService
 
@@ -32,9 +37,13 @@ async def list_customers(
         sort_by = None
     svc = CustomerService(db)
     items, total = await svc.search(
-        name=name, email=email, active=active,
-        page=pagination.page, size=pagination.size,
-        sort_by=sort_by, order=order,
+        name=name,
+        email=email,
+        active=active,
+        page=pagination.page,
+        size=pagination.size,
+        sort_by=sort_by,
+        order=order,
     )
     return build_paged_response(items, total, pagination.page, pagination.size)
 

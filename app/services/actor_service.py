@@ -20,11 +20,20 @@ class ActorService(BaseService[Actor]):
         actor = result.scalar_one_or_none()
         if actor is None:
             from fastapi import HTTPException, status
+
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actor not found")
         return actor
 
-    async def search_by_name(self, name: str, page: int = 1, size: int = 20, sort_by: str | None = None, order: str = "asc"):
+    async def search_by_name(
+        self,
+        name: str,
+        page: int = 1,
+        size: int = 20,
+        sort_by: str | None = None,
+        order: str = "asc",
+    ):
         from sqlalchemy import or_
+
         pattern = f"%{name}%"
         filters = [
             or_(

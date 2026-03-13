@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import Field
 
@@ -18,7 +17,7 @@ class LanguageCreate(LanguageBase):
 
 
 class LanguageUpdate(AppBaseModel):
-    name: Optional[str] = Field(None, max_length=20)
+    name: str | None = Field(None, max_length=20)
 
 
 class LanguageResponse(LanguageBase):
@@ -36,7 +35,7 @@ class CategoryCreate(CategoryBase):
 
 
 class CategoryUpdate(AppBaseModel):
-    name: Optional[str] = Field(None, max_length=25)
+    name: str | None = Field(None, max_length=25)
 
 
 class CategoryResponse(CategoryBase):
@@ -55,8 +54,8 @@ class ActorCreate(ActorBase):
 
 
 class ActorUpdate(AppBaseModel):
-    first_name: Optional[str] = Field(None, max_length=45)
-    last_name: Optional[str] = Field(None, max_length=45)
+    first_name: str | None = Field(None, max_length=45)
+    last_name: str | None = Field(None, max_length=45)
 
 
 class ActorResponse(ActorBase):

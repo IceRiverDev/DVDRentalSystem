@@ -4,11 +4,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import PaginationParams, pagination_params, build_paged_response
+from app.api.deps import PaginationParams, build_paged_response, pagination_params
 from app.core.database import DBSession
 from app.schemas import (
-    PaymentCreate, PaymentUpdate, PaymentResponse,
-    PagedResponse, MessageResponse,
+    MessageResponse,
+    PagedResponse,
+    PaymentCreate,
+    PaymentResponse,
+    PaymentUpdate,
 )
 from app.services import PaymentService
 
@@ -30,10 +33,14 @@ async def list_payments(
         sort_by = None
     svc = PaymentService(db)
     from app.models import Payment
+
     if customer_id:
         items, total = await svc.get_customer_payments(
-            customer_id, page=pagination.page, size=pagination.size,
-            sort_by=sort_by, order=order,
+            customer_id,
+            page=pagination.page,
+            size=pagination.size,
+            sort_by=sort_by,
+            order=order,
         )
     else:
         if sort_by:

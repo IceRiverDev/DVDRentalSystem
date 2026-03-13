@@ -4,11 +4,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import PaginationParams, pagination_params, build_paged_response
+from app.api.deps import PaginationParams, build_paged_response, pagination_params
 from app.core.database import DBSession
 from app.schemas import (
-    InventoryCreate, InventoryUpdate, InventoryResponse,
-    PagedResponse, MessageResponse,
+    InventoryCreate,
+    InventoryResponse,
+    InventoryUpdate,
+    MessageResponse,
+    PagedResponse,
 )
 from app.services import InventoryService
 
@@ -31,11 +34,16 @@ async def list_inventory(
     svc = InventoryService(db)
     if store_id:
         items, total = await svc.get_store_inventory(
-            store_id, page=pagination.page, size=pagination.size,
-            sort_by=sort_by, order=order,
+            store_id,
+            page=pagination.page,
+            size=pagination.size,
+            sort_by=sort_by,
+            order=order,
         )
     else:
-        items, total = await svc.list(page=pagination.page, size=pagination.size, sort_by=sort_by, order=order)
+        items, total = await svc.list(
+            page=pagination.page, size=pagination.size, sort_by=sort_by, order=order
+        )
     return build_paged_response(items, total, pagination.page, pagination.size)
 
 
@@ -54,8 +62,10 @@ async def get_available_inventory(
 ):
     svc = InventoryService(db)
     items, total = await svc.get_available_inventory(
-        film_id=film_id, store_id=store_id,
-        page=pagination.page, size=pagination.size,
+        film_id=film_id,
+        store_id=store_id,
+        page=pagination.page,
+        size=pagination.size,
     )
     return build_paged_response(items, total, pagination.page, pagination.size)
 

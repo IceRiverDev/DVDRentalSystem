@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 import httpx
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 
 from app.core.config import get_settings
 from app.core.security import get_current_user
@@ -20,8 +20,10 @@ async def _keycloak_token(data: dict) -> dict:
             timeout=10,
         )
     if resp.status_code != 200:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail=resp.json().get("error_description", "Token request failed"))
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=resp.json().get("error_description", "Token request failed"),
+        )
     return resp.json()
 
 
@@ -30,7 +32,7 @@ def _set_refresh_cookie(response: Response, refresh_token: str, max_age: int) ->
         key=_COOKIE,
         value=refresh_token,
         httponly=True,
-        secure=False,       # set True in production (HTTPS only)
+        secure=False,  # set True in production (HTTPS only)
         samesite="lax",
         max_age=max_age,
         path="/api/v1/auth",
@@ -47,16 +49,19 @@ async def oidc_callback(request: Request, response: Response):
     settings = get_settings()
     body = await request.json()
 
-    token_data = await _keycloak_token({
-        "grant_type":    "authorization_code",
-        "client_id":     settings.KEYCLOAK_CLIENT_ID,
-        "code":          body["code"],
-        "code_verifier": body["code_verifier"],
-        "redirect_uri":  body["redirect_uri"],
-    })
+    token_data = await _keycloak_token(
+        {
+            "grant_type": "authorization_code",
+            "client_id": settings.KEYCLOAK_CLIENT_ID,
+            "code": body["code"],
+            "code_verifier": body["code_verifier"],
+            "redirect_uri": body["redirect_uri"],
+        }
+    )
 
-    _set_refresh_cookie(response, token_data["refresh_token"],
-                        token_data.get("refresh_expires_in", 604800))
+    _set_refresh_cookie(
+        response, token_data["refresh_token"], token_data.get("refresh_expires_in", 604800)
+    )
     return {"access_token": token_data["access_token"]}
 
 
@@ -70,18 +75,22 @@ async def refresh_access_token(
     Also rotates the refresh_token cookie.
     """
     if not dvd_refresh_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="No refresh token cookie")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="No refresh token cookie"
+        )
 
     settings = get_settings()
-    token_data = await _keycloak_token({
-        "grant_type":    "refresh_token",
-        "client_id":     settings.KEYCLOAK_CLIENT_ID,
-        "refresh_token": dvd_refresh_token,
-    })
+    token_data = await _keycloak_token(
+        {
+            "grant_type": "refresh_token",
+            "client_id": settings.KEYCLOAK_CLIENT_ID,
+            "refresh_token": dvd_refresh_token,
+        }
+    )
 
-    _set_refresh_cookie(response, token_data["refresh_token"],
-                        token_data.get("refresh_expires_in", 604800))
+    _set_refresh_cookie(
+        response, token_data["refresh_token"], token_data.get("refresh_expires_in", 604800)
+    )
     return {"access_token": token_data["access_token"]}
 
 
@@ -95,11 +104,11 @@ async def logout(response: Response):
 @router.get("/me", summary="Get current authenticated user")
 async def get_me(current_user: dict = Depends(get_current_user)):
     return {
-        "sub":      current_user.get("sub"),
+        "sub": current_user.get("sub"),
         "username": current_user.get("preferred_username"),
-        "name":     current_user.get("name"),
-        "email":    current_user.get("email"),
-        "roles":    current_user.get("realm_access", {}).get("roles", []),
+        "name": current_user.get("name"),
+        "email": current_user.get("email"),
+        "roles": current_user.get("realm_access", {}).get("roles", []),
     }
 
 
@@ -110,10 +119,9 @@ async def token_info():
         "token_url": f"{settings.KEYCLOAK_ISSUER}/protocol/openid-connect/token",
         "grant_type": "password",
         "example": {
-            "client_id":  settings.KEYCLOAK_CLIENT_ID,
-            "username":   "<your username>",
-            "password":   "<your password>",
+            "client_id": settings.KEYCLOAK_CLIENT_ID,
+            "username": "<your username>",
+            "password": "<your password>",
             "grant_type": "password",
         },
     }
-

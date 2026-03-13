@@ -24,6 +24,7 @@ class FilmService(BaseService[Film]):
         film = result.scalar_one_or_none()
         if film is None:
             from fastapi import HTTPException, status
+
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Film not found")
         return film
 
@@ -72,8 +73,10 @@ class FilmService(BaseService[Film]):
         return list(rows), total
 
     async def add_actor(self, film_id: int, actor_id: int) -> None:
-        from app.models import FilmActor
         from sqlalchemy import select
+
+        from app.models import FilmActor
+
         existing = await self.db.execute(
             select(FilmActor).where(
                 FilmActor.film_id == film_id,
@@ -87,18 +90,22 @@ class FilmService(BaseService[Film]):
 
     async def remove_actor(self, film_id: int, actor_id: int) -> None:
         from app.models import FilmActor
-        obj = (await self.db.execute(
-            select(FilmActor).where(
-                FilmActor.film_id == film_id,
-                FilmActor.actor_id == actor_id,
+
+        obj = (
+            await self.db.execute(
+                select(FilmActor).where(
+                    FilmActor.film_id == film_id,
+                    FilmActor.actor_id == actor_id,
+                )
             )
-        )).scalar_one_or_none()
+        ).scalar_one_or_none()
         if obj:
             await self.db.delete(obj)
             await self.db.flush()
 
     async def add_category(self, film_id: int, category_id: int) -> None:
         from app.models import FilmCategory
+
         existing = await self.db.execute(
             select(FilmCategory).where(
                 FilmCategory.film_id == film_id,

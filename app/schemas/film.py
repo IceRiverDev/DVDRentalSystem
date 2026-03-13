@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 from pydantic import Field
 
@@ -13,15 +12,15 @@ from app.schemas.catalog import ActorResponse, CategoryResponse, LanguageRespons
 
 class FilmBase(AppBaseModel):
     title: str = Field(max_length=255)
-    description: Optional[str] = None
-    release_year: Optional[int] = Field(None, ge=1888, le=2100)
+    description: str | None = None
+    release_year: int | None = Field(None, ge=1888, le=2100)
     language_id: int
     rental_duration: int = Field(default=3, ge=1)
     rental_rate: Decimal = Field(default=Decimal("4.99"), ge=0)
-    length: Optional[int] = Field(None, ge=1)
+    length: int | None = Field(None, ge=1)
     replacement_cost: Decimal = Field(default=Decimal("19.99"), ge=0)
-    rating: Optional[MpaaRating] = MpaaRating.G
-    special_features: Optional[list[str]] = None
+    rating: MpaaRating | None = MpaaRating.G
+    special_features: list[str] | None = None
 
 
 class FilmCreate(FilmBase):
@@ -29,16 +28,16 @@ class FilmCreate(FilmBase):
 
 
 class FilmUpdate(AppBaseModel):
-    title: Optional[str] = Field(None, max_length=255)
-    description: Optional[str] = None
-    release_year: Optional[int] = Field(None, ge=1888, le=2100)
-    language_id: Optional[int] = None
-    rental_duration: Optional[int] = Field(None, ge=1)
-    rental_rate: Optional[Decimal] = Field(None, ge=0)
-    length: Optional[int] = Field(None, ge=1)
-    replacement_cost: Optional[Decimal] = Field(None, ge=0)
-    rating: Optional[MpaaRating] = None
-    special_features: Optional[list[str]] = None
+    title: str | None = Field(None, max_length=255)
+    description: str | None = None
+    release_year: int | None = Field(None, ge=1888, le=2100)
+    language_id: int | None = None
+    rental_duration: int | None = Field(None, ge=1)
+    rental_rate: Decimal | None = Field(None, ge=0)
+    length: int | None = Field(None, ge=1)
+    replacement_cost: Decimal | None = Field(None, ge=0)
+    rating: MpaaRating | None = None
+    special_features: list[str] | None = None
 
 
 class FilmResponse(FilmBase):
@@ -47,6 +46,6 @@ class FilmResponse(FilmBase):
 
 
 class FilmDetailResponse(FilmResponse):
-    language_rel: Optional[LanguageResponse] = None
+    language_rel: LanguageResponse | None = None
     actors: list[ActorResponse] = []
     categories: list[CategoryResponse] = []
