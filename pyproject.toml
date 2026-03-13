@@ -11,11 +11,11 @@ description = "Production-ready REST API for the DVD Rental System. Built with F
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "IceRiverDev" }]
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 keywords = ["fastapi", "dvd-rental", "rest-api", "postgresql", "keycloak", "oidc"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.13",
     "Framework :: FastAPI",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -56,7 +56,7 @@ packages = ["app"]
 # ── Ruff (linter + formatter) ────────────────────────────────────────────────
 [tool.ruff]
 line-length    = 100
-target-version = "py311"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "UP", "B"]
@@ -67,7 +67,7 @@ known-first-party = ["app"]
 
 # ── Mypy ─────────────────────────────────────────────────────────────────────
 [tool.mypy]
-python_version          = "3.11"
+python_version          = "3.13"
 strict                  = false
 ignore_missing_imports  = true
 

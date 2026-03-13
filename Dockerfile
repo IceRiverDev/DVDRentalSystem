@@ -1,5 +1,5 @@
 # ── Stage 1: dependency cache layer ──────────────────────────────────────────
-FROM python:3.11-slim AS deps
+FROM python:3.13-slim AS deps
 
 WORKDIR /app
 
@@ -13,12 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 # ── Stage 2: runtime image ────────────────────────────────────────────────────
-FROM python:3.11-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 WORKDIR /app
 
 # Copy installed packages from deps stage
-COPY --from=deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=deps /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=deps /usr/local/bin /usr/local/bin
 
 # Runtime deps only (libpq for asyncpg)
