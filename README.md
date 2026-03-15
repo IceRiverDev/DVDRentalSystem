@@ -6,6 +6,7 @@
 
 ## 📋 目录
 
+- [相关服务](#相关服务)
 - [技术栈](#技术栈)
 - [项目结构](#项目结构)
 - [数据库 ER 关系](#数据库-er-关系)
@@ -14,6 +15,43 @@
 - [API 接口总览](#api-接口总览)
 - [核心设计](#核心设计)
 - [运行测试](#运行测试)
+
+---
+
+## 相关服务
+
+本项目是 DVDRental 系统的 **REST API 后端**，属于整体架构的一部分。
+
+| 仓库 | 说明 | 端口 |
+|------|------|------|
+| **DVDRentalSystem**（本仓库） | FastAPI REST API，完整 CRUD + 业务逻辑 | 8000 |
+| [**DVDRentalGraphql**](https://github.com/IceRiverDev/DVDRentalGraphql) | Strawberry GraphQL 查询服务，连接同一 PostgreSQL，支持嵌套查询与复杂过滤 | 8001 |
+
+### DVDRentalGraphql 简介
+
+`DVDRentalGraphql` 是基于本项目数据库构建的独立 GraphQL 查询服务，适合前端需要灵活按需取数的场景：
+
+- **框架**：FastAPI + [Strawberry GraphQL](https://strawberry.rocks)
+- **认证**：与本服务共用 Keycloak，Bearer Token 一致
+- **特性**：
+  - 所有集合查询支持 `StringFilter`（`eq / ilike / contains / startsWith`…）、`IntFilter`、`FloatFilter`、`DateTimeFilter` 等操作符
+  - DataLoader 自动合并 N+1 查询
+  - 交互式 GraphiQL 界面：**http://localhost:8001/graphql**
+
+**快速体验**：
+
+```bash
+# 获取 token（与 DVDRentalSystem 相同的 Keycloak realm）
+TOKEN=$(curl -s -X POST http://localhost:8090/realms/dvd-rental/protocol/openid-connect/token \
+  -d "grant_type=password&client_id=dvd-rental-api&username=<user>&password=<pass>" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+
+# 查询电影（GraphQL）
+curl -X POST http://localhost:8001/graphql \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ films(filter:{title:{contains:\"love\"}},page:1,pageSize:5){items{title rating rentalRate}pageInfo{total}}}"}'
+```
 
 ---
 
