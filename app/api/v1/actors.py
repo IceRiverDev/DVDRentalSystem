@@ -35,7 +35,11 @@ async def list_actors(
     svc = ActorService(db)
     if name:
         items, total = await svc.search_by_name(
-            name, page=pagination.page, size=pagination.size, sort_by=sort_by, order=order
+            name,
+            page=pagination.page,
+            size=pagination.size,
+            sort_by=sort_by,
+            order=order,
         )
     else:
         items, total = await svc.list(

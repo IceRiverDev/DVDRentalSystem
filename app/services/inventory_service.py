@@ -14,7 +14,9 @@ class InventoryService(BaseService[Inventory]):
     ):
         """Return inventory items not currently rented out."""
         rented_subq = (
-            select(Rental.inventory_id).where(Rental.return_date.is_(None)).scalar_subquery()
+            select(Rental.inventory_id)
+            .where(Rental.return_date.is_(None))
+            .scalar_subquery()
         )
         q = select(Inventory).where(
             Inventory.film_id == film_id,

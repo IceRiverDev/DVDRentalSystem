@@ -39,7 +39,9 @@ def _set_refresh_cookie(response: Response, refresh_token: str, max_age: int) ->
     )
 
 
-@router.post("/callback", summary="Exchange PKCE code for tokens", include_in_schema=False)
+@router.post(
+    "/callback", summary="Exchange PKCE code for tokens", include_in_schema=False
+)
 async def oidc_callback(request: Request, response: Response):
     """
     Receive the PKCE authorization code from the frontend, exchange it with
@@ -60,12 +62,16 @@ async def oidc_callback(request: Request, response: Response):
     )
 
     _set_refresh_cookie(
-        response, token_data["refresh_token"], token_data.get("refresh_expires_in", 604800)
+        response,
+        token_data["refresh_token"],
+        token_data.get("refresh_expires_in", 604800),
     )
     return {"access_token": token_data["access_token"]}
 
 
-@router.post("/refresh", summary="Silently refresh access token", include_in_schema=False)
+@router.post(
+    "/refresh", summary="Silently refresh access token", include_in_schema=False
+)
 async def refresh_access_token(
     response: Response,
     dvd_refresh_token: str = Cookie(default=None),
@@ -89,12 +95,16 @@ async def refresh_access_token(
     )
 
     _set_refresh_cookie(
-        response, token_data["refresh_token"], token_data.get("refresh_expires_in", 604800)
+        response,
+        token_data["refresh_token"],
+        token_data.get("refresh_expires_in", 604800),
     )
     return {"access_token": token_data["access_token"]}
 
 
-@router.post("/logout", summary="Logout and clear refresh token cookie", include_in_schema=False)
+@router.post(
+    "/logout", summary="Logout and clear refresh token cookie", include_in_schema=False
+)
 async def logout(response: Response):
     """Clear the HttpOnly refresh_token cookie."""
     response.delete_cookie(key=_COOKIE, path="/api/v1/auth")

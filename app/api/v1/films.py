@@ -100,7 +100,9 @@ async def remove_actor_from_film(film_id: int, actor_id: int, db: DBSession):
     await svc.remove_actor(film_id, actor_id)
 
 
-@router.post("/{film_id}/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.post(
+    "/{film_id}/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 async def add_category_to_film(film_id: int, category_id: int, db: DBSession):
     svc = FilmService(db)
     await svc.add_category(film_id, category_id)

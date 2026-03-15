@@ -44,7 +44,9 @@ class RentalService(BaseService[Rental]):
         await self.db.refresh(rental)
         return rental
 
-    async def return_rental(self, rental_id: int, return_date: datetime | None = None) -> Rental:
+    async def return_rental(
+        self, rental_id: int, return_date: datetime | None = None
+    ) -> Rental:
         rental = await self.get_by_id(rental_id)
         if rental.return_date is not None:
             raise HTTPException(
@@ -59,8 +61,14 @@ class RentalService(BaseService[Rental]):
     async def get_overdue_rentals(self, page: int = 1, size: int = 20):
         # Overdue = not returned and rental_date older than film's rental_duration days
         # Simplified: return_date is None
-        q = select(Rental).where(Rental.return_date.is_(None)).order_by(Rental.rental_date.asc())
-        count_q = select(func.count()).select_from(Rental).where(Rental.return_date.is_(None))
+        q = (
+            select(Rental)
+            .where(Rental.return_date.is_(None))
+            .order_by(Rental.rental_date.asc())
+        )
+        count_q = (
+            select(func.count()).select_from(Rental).where(Rental.return_date.is_(None))
+        )
         total = (await self.db.execute(count_q)).scalar_one()
         offset = (page - 1) * size
         rows = (await self.db.execute(q.offset(offset).limit(size))).scalars().all()

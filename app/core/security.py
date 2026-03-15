@@ -40,7 +40,8 @@ async def decode_token(token: str) -> dict:
         )
     except JWTError as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid or expired token: {e}"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid or expired token: {e}",
         ) from e
 
 
@@ -48,5 +49,7 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(bearer_scheme),
 ) -> dict:
     if not credentials:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+        )
     return await decode_token(credentials.credentials)

@@ -21,7 +21,9 @@ class ActorService(BaseService[Actor]):
         if actor is None:
             from fastapi import HTTPException, status
 
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actor not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Actor not found"
+            )
         return actor
 
     async def search_by_name(
@@ -41,4 +43,6 @@ class ActorService(BaseService[Actor]):
                 Actor.last_name.ilike(pattern),
             )
         ]
-        return await self.list(page=page, size=size, filters=filters, sort_by=sort_by, order=order)
+        return await self.list(
+            page=page, size=size, filters=filters, sort_by=sort_by, order=order
+        )

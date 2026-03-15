@@ -19,7 +19,13 @@ from app.services import RentalService
 router = APIRouter(prefix="/rentals", tags=["Rentals"])
 Pagination = Annotated[PaginationParams, Depends(pagination_params)]
 
-ALLOWED_SORT_FIELDS = {"rental_id", "rental_date", "return_date", "customer_id", "staff_id"}
+ALLOWED_SORT_FIELDS = {
+    "rental_id",
+    "rental_date",
+    "return_date",
+    "customer_id",
+    "staff_id",
+}
 
 
 @router.get("", response_model=PagedResponse[RentalResponse])
@@ -40,7 +46,9 @@ async def list_rentals(
         )
     else:
         items, total = await svc.list(
-            page=pagination.page, size=pagination.size, order_by=Rental.rental_date.desc()
+            page=pagination.page,
+            size=pagination.size,
+            order_by=Rental.rental_date.desc(),
         )
     return build_paged_response(items, total, pagination.page, pagination.size)
 
@@ -58,7 +66,9 @@ async def create_rental(body: RentalCreate, db: DBSession):
 @router.get("/overdue", response_model=PagedResponse[RentalResponse])
 async def list_overdue_rentals(db: DBSession, pagination: Pagination):
     svc = RentalService(db)
-    items, total = await svc.get_overdue_rentals(page=pagination.page, size=pagination.size)
+    items, total = await svc.get_overdue_rentals(
+        page=pagination.page, size=pagination.size
+    )
     return build_paged_response(items, total, pagination.page, pagination.size)
 
 
