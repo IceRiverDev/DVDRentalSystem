@@ -49,7 +49,9 @@ async def list_payments(
             )
         else:
             items, total = await svc.list(
-                page=pagination.page, size=pagination.size, order_by=Payment.payment_date.desc()
+                page=pagination.page,
+                size=pagination.size,
+                order_by=Payment.payment_date.desc(),
             )
     return build_paged_response(items, total, pagination.page, pagination.size)
 

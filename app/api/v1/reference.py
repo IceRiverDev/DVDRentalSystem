@@ -35,7 +35,9 @@ async def list_categories(db: DBSession):
     return rows
 
 
-@cat_router.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
+@cat_router.post(
+    "", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_category(body: CategoryCreate, db: DBSession):
     from app.models import Category as M
 
@@ -83,7 +85,9 @@ async def list_languages(db: DBSession):
     return (await db.execute(select(Language).order_by(Language.name))).scalars().all()
 
 
-@lang_router.post("", response_model=LanguageResponse, status_code=status.HTTP_201_CREATED)
+@lang_router.post(
+    "", response_model=LanguageResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_language(body: LanguageCreate, db: DBSession):
     obj = Language(**body.model_dump())
     db.add(obj)

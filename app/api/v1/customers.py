@@ -20,7 +20,14 @@ from app.services import CustomerService
 router = APIRouter(prefix="/customers", tags=["Customers"])
 Pagination = Annotated[PaginationParams, Depends(pagination_params)]
 
-ALLOWED_SORT_FIELDS = {"customer_id", "first_name", "last_name", "email", "store_id", "create_date"}
+ALLOWED_SORT_FIELDS = {
+    "customer_id",
+    "first_name",
+    "last_name",
+    "email",
+    "store_id",
+    "create_date",
+}
 
 
 @router.get("", response_model=PagedResponse[CustomerResponse])

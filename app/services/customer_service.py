@@ -21,7 +21,9 @@ class CustomerService(BaseService[Customer]):
         if customer is None:
             from fastapi import HTTPException, status
 
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
+            )
         return customer
 
     async def search(
@@ -59,7 +61,11 @@ class CustomerService(BaseService[Customer]):
 
         from app.models import Rental
 
-        count_q = select(func.count()).select_from(Rental).where(Rental.customer_id == customer_id)
+        count_q = (
+            select(func.count())
+            .select_from(Rental)
+            .where(Rental.customer_id == customer_id)
+        )
         total = (await self.db.execute(count_q)).scalar_one()
         offset = (page - 1) * size
         rows = (

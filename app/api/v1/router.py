@@ -1,7 +1,16 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from app.api.v1 import actors, auth, customers, films, inventory, payments, reference, rentals
+from app.api.v1 import (
+    actors,
+    auth,
+    customers,
+    films,
+    inventory,
+    payments,
+    reference,
+    rentals,
+)
 from app.core.security import get_current_user
 
 router = APIRouter()

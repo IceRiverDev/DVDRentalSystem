@@ -17,7 +17,9 @@ class FilmService(BaseService[Film]):
             .options(
                 selectinload(Film.language_rel),
                 selectinload(Film.film_actors).selectinload(FilmActor.actor_rel),
-                selectinload(Film.film_categories).selectinload(FilmCategory.category_rel),
+                selectinload(Film.film_categories).selectinload(
+                    FilmCategory.category_rel
+                ),
             )
         )
         result = await self.db.execute(q)
@@ -25,7 +27,9 @@ class FilmService(BaseService[Film]):
         if film is None:
             from fastapi import HTTPException, status
 
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Film not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Film not found"
+            )
         return film
 
     async def search(
@@ -58,9 +62,9 @@ class FilmService(BaseService[Film]):
             q = q.join(FilmCategory, Film.film_id == FilmCategory.film_id).where(
                 FilmCategory.category_id == category_id
             )
-            count_q = count_q.join(FilmCategory, Film.film_id == FilmCategory.film_id).where(
-                FilmCategory.category_id == category_id
-            )
+            count_q = count_q.join(
+                FilmCategory, Film.film_id == FilmCategory.film_id
+            ).where(FilmCategory.category_id == category_id)
 
         if sort_by:
             col = getattr(Film, sort_by, None)

@@ -39,5 +39,7 @@ async def client():
     from app.main import app
 
     _apply_auth_override(app)
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as c:
         yield c

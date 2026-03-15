@@ -60,7 +60,9 @@ class City(Base):
     )
 
     country_rel: Mapped[Country] = relationship("Country", back_populates="cities")
-    addresses: Mapped[list[Address]] = relationship("Address", back_populates="city_rel")
+    addresses: Mapped[list[Address]] = relationship(
+        "Address", back_populates="city_rel"
+    )
 
 
 class Address(Base):
@@ -70,7 +72,9 @@ class Address(Base):
     address: Mapped[str] = mapped_column(String(50), nullable=False)
     address2: Mapped[str | None] = mapped_column(String(50))
     district: Mapped[str] = mapped_column(String(20), nullable=False)
-    city_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey("city.city_id"), nullable=False)
+    city_id: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("city.city_id"), nullable=False
+    )
     postal_code: Mapped[str | None] = mapped_column(String(10))
     phone: Mapped[str] = mapped_column(String(20), nullable=False)
     last_update: Mapped[datetime] = mapped_column(
@@ -78,8 +82,12 @@ class Address(Base):
     )
 
     city_rel: Mapped[City] = relationship("City", back_populates="addresses")
-    customers: Mapped[list[Customer]] = relationship("Customer", back_populates="address_rel")
-    staff_members: Mapped[list[Staff]] = relationship("Staff", back_populates="address_rel")
+    customers: Mapped[list[Customer]] = relationship(
+        "Customer", back_populates="address_rel"
+    )
+    staff_members: Mapped[list[Staff]] = relationship(
+        "Staff", back_populates="address_rel"
+    )
     stores: Mapped[list[Store]] = relationship("Store", back_populates="address_rel")
 
 
@@ -119,7 +127,9 @@ class Actor(Base):
         DateTime, server_default=func.now(), nullable=False
     )
 
-    film_actors: Mapped[list[FilmActor]] = relationship("FilmActor", back_populates="actor_rel")
+    film_actors: Mapped[list[FilmActor]] = relationship(
+        "FilmActor", back_populates="actor_rel"
+    )
 
 
 class Film(Base):
@@ -132,7 +142,9 @@ class Film(Base):
     language_id: Mapped[int] = mapped_column(
         SmallInteger, ForeignKey("language.language_id"), nullable=False
     )
-    rental_duration: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="3")
+    rental_duration: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, server_default="3"
+    )
     rental_rate: Mapped[Decimal] = mapped_column(
         Numeric(4, 2), nullable=False, server_default="4.99"
     )
@@ -156,7 +168,9 @@ class Film(Base):
     fulltext: Mapped[str] = mapped_column(TSVECTOR, nullable=False)
 
     language_rel: Mapped[Language] = relationship("Language", back_populates="films")
-    film_actors: Mapped[list[FilmActor]] = relationship("FilmActor", back_populates="film_rel")
+    film_actors: Mapped[list[FilmActor]] = relationship(
+        "FilmActor", back_populates="film_rel"
+    )
     film_categories: Mapped[list[FilmCategory]] = relationship(
         "FilmCategory", back_populates="film_rel"
     )
@@ -171,7 +185,9 @@ class FilmActor(Base):
     actor_id: Mapped[int] = mapped_column(
         SmallInteger, ForeignKey("actor.actor_id"), primary_key=True
     )
-    film_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey("film.film_id"), primary_key=True)
+    film_id: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("film.film_id"), primary_key=True
+    )
     last_update: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), nullable=False
     )
@@ -183,7 +199,9 @@ class FilmActor(Base):
 class FilmCategory(Base):
     __tablename__ = "film_category"
 
-    film_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey("film.film_id"), primary_key=True)
+    film_id: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("film.film_id"), primary_key=True
+    )
     category_id: Mapped[int] = mapped_column(
         SmallInteger, ForeignKey("category.category_id"), primary_key=True
     )
@@ -192,7 +210,9 @@ class FilmCategory(Base):
     )
 
     film_rel: Mapped[Film] = relationship("Film", back_populates="film_categories")
-    category_rel: Mapped[Category] = relationship("Category", back_populates="film_categories")
+    category_rel: Mapped[Category] = relationship(
+        "Category", back_populates="film_categories"
+    )
 
 
 class Customer(Base):
@@ -206,14 +226,24 @@ class Customer(Base):
     address_id: Mapped[int] = mapped_column(
         SmallInteger, ForeignKey("address.address_id"), nullable=False
     )
-    activebool: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
-    create_date: Mapped[date] = mapped_column(Date, nullable=False, server_default=func.now())
-    last_update: Mapped[datetime | None] = mapped_column(DateTime, server_default=func.now())
+    activebool: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="true"
+    )
+    create_date: Mapped[date] = mapped_column(
+        Date, nullable=False, server_default=func.now()
+    )
+    last_update: Mapped[datetime | None] = mapped_column(
+        DateTime, server_default=func.now()
+    )
     active: Mapped[int | None] = mapped_column(Integer)
 
     address_rel: Mapped[Address] = relationship("Address", back_populates="customers")
-    rentals: Mapped[list[Rental]] = relationship("Rental", back_populates="customer_rel")
-    payments: Mapped[list[Payment]] = relationship("Payment", back_populates="customer_rel")
+    rentals: Mapped[list[Rental]] = relationship(
+        "Rental", back_populates="customer_rel"
+    )
+    payments: Mapped[list[Payment]] = relationship(
+        "Payment", back_populates="customer_rel"
+    )
 
 
 class Staff(Base):
@@ -235,9 +265,13 @@ class Staff(Base):
     )
     picture: Mapped[bytes | None] = mapped_column(LargeBinary)
 
-    address_rel: Mapped[Address] = relationship("Address", back_populates="staff_members")
+    address_rel: Mapped[Address] = relationship(
+        "Address", back_populates="staff_members"
+    )
     rentals: Mapped[list[Rental]] = relationship("Rental", back_populates="staff_rel")
-    payments: Mapped[list[Payment]] = relationship("Payment", back_populates="staff_rel")
+    payments: Mapped[list[Payment]] = relationship(
+        "Payment", back_populates="staff_rel"
+    )
     managed_stores: Mapped[list[Store]] = relationship(
         "Store", back_populates="manager_rel", foreign_keys="Store.manager_staff_id"
     )
@@ -270,7 +304,9 @@ class Inventory(Base):
     __tablename__ = "inventory"
 
     inventory_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    film_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey("film.film_id"), nullable=False)
+    film_id: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("film.film_id"), nullable=False
+    )
     store_id: Mapped[int] = mapped_column(
         SmallInteger, ForeignKey("store.store_id"), nullable=False
     )
@@ -280,7 +316,9 @@ class Inventory(Base):
 
     film_rel: Mapped[Film] = relationship("Film", back_populates="inventory_items")
     store_rel: Mapped[Store] = relationship("Store", back_populates="inventory_items")
-    rentals: Mapped[list[Rental]] = relationship("Rental", back_populates="inventory_rel")
+    rentals: Mapped[list[Rental]] = relationship(
+        "Rental", back_populates="inventory_rel"
+    )
 
 
 class Rental(Base):
@@ -302,10 +340,14 @@ class Rental(Base):
         DateTime, server_default=func.now(), nullable=False
     )
 
-    inventory_rel: Mapped[Inventory] = relationship("Inventory", back_populates="rentals")
+    inventory_rel: Mapped[Inventory] = relationship(
+        "Inventory", back_populates="rentals"
+    )
     customer_rel: Mapped[Customer] = relationship("Customer", back_populates="rentals")
     staff_rel: Mapped[Staff] = relationship("Staff", back_populates="rentals")
-    payments: Mapped[list[Payment]] = relationship("Payment", back_populates="rental_rel")
+    payments: Mapped[list[Payment]] = relationship(
+        "Payment", back_populates="rental_rel"
+    )
 
 
 class Payment(Base):
@@ -318,7 +360,9 @@ class Payment(Base):
     staff_id: Mapped[int] = mapped_column(
         SmallInteger, ForeignKey("staff.staff_id"), nullable=False
     )
-    rental_id: Mapped[int] = mapped_column(Integer, ForeignKey("rental.rental_id"), nullable=False)
+    rental_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("rental.rental_id"), nullable=False
+    )
     amount: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     payment_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 

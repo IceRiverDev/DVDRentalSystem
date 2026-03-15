@@ -41,7 +41,9 @@ class Settings(BaseSettings):
     #                      (can differ in Docker — use host.docker.internal)
     # KEYCLOAK_CLIENT_ID : OAuth2 client id (public client, no secret needed)
     KEYCLOAK_ISSUER: str = "http://localhost:8090/realms/dvd-rental"
-    KEYCLOAK_JWKS_URL: str = "http://localhost:8090/realms/dvd-rental/protocol/openid-connect/certs"
+    KEYCLOAK_JWKS_URL: str = (
+        "http://localhost:8090/realms/dvd-rental/protocol/openid-connect/certs"
+    )
     KEYCLOAK_CLIENT_ID: str = "dvd-rental-api"
 
     @property

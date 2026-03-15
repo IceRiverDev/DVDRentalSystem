@@ -9,11 +9,15 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 logger = logging.getLogger(__name__)
 
 
-async def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONResponse:
+async def integrity_error_handler(
+    request: Request, exc: IntegrityError
+) -> JSONResponse:
     logger.error("DB integrity error: %s", exc.orig)
     return JSONResponse(
         status_code=status.HTTP_409_CONFLICT,
-        content={"detail": "Data integrity error. Possible duplicate or foreign key violation."},
+        content={
+            "detail": "Data integrity error. Possible duplicate or foreign key violation."
+        },
     )
 
 
